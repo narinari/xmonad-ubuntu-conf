@@ -14,12 +14,30 @@
   Repository: https://github.com/davidbrewer/xmonad-ubuntu-conf
 -}
 
+import Control.Applicative
+import Control.Monad
+import Control.Monad.Writer
+
+import Data.List
+import Data.Ratio ((%))
+import qualified Data.Map as M
+import Data.Maybe
+import Data.Traversable(traverse)
+
+import Graphics.X11.Xinerama
+import System.IO
+
 import XMonad
+import XMonad.Main
+import XMonad.Actions.GridSelect
+import XMonad.Actions.UpdatePointer
+import XMonad.Actions.WindowMenu
 import XMonad.Hooks.SetWMName
 import XMonad.Layout.Grid
 import XMonad.Layout.ResizableTile
 import XMonad.Layout.IM
 import XMonad.Layout.ThreeColumns
+import XMonad.Layout.Minimize
 import XMonad.Layout.NoBorders
 import XMonad.Layout.Circle
 import XMonad.Layout.PerWorkspace (onWorkspace)
@@ -27,13 +45,12 @@ import XMonad.Layout.Fullscreen
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
 import XMonad.Hooks.DynamicLog
+import XMonad.Hooks.ManageHelpers
 import XMonad.Actions.Plane
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.ICCCMFocus
 import qualified XMonad.StackSet as W
-import qualified Data.Map as M
-import Data.Ratio ((%))
 
 {-
   Xmonad configuration variables. These settings control some of the
@@ -41,11 +58,11 @@ import Data.Ratio ((%))
 -}
 
 myModMask            = mod4Mask       -- changes the mod key to "super"
-myFocusedBorderColor = "#ff0000"      -- color of focused border
+myFocusedBorderColor = "#DD4814"      -- color of focused border
 myNormalBorderColor  = "#cccccc"      -- color of inactive border
 myBorderWidth        = 1              -- width of border around windows
 myTerminal           = "terminator"   -- which terminal software to use
-myIMRosterTitle      = "Buddy List"   -- title of roster on IM workspace
+myIMRosterTitle      = "ハングアウト"   -- title of roster on IM workspace
                                       -- use "Buddy List" for Pidgin, but
                                       -- "Contact List" for Empathy
 
@@ -67,6 +84,7 @@ myVisibleWSRight = ")"
 myUrgentWSLeft  = "{"         -- wrap urgent workspace with these
 myUrgentWSRight = "}"
 
+hangoutWinClassName = "crx_nckgahadagoaajjgafhacjanaoiihapd"
 
 {-
   Workspace configuration. Here you can change the names of your
@@ -116,12 +134,15 @@ startupWorkspace = "5:Dev"  -- which workspace do you want to be on after launch
 -- appear if there is more than one visible window.
 -- "avoidStruts" modifier makes it so that the layout provides
 -- space for the status bar at the top of the screen.
-defaultLayouts = smartBorders(avoidStruts(
+defaultLayouts = smartBorders
+  $ avoidStruts
+  $ minimize
   -- ResizableTall layout has a large master window on the left,
   -- and remaining windows tile on the right. By default each area
   -- takes up half the screen, but you can resize using "super-h" and
   -- "super-l".
-  ResizableTall 1 (3/100) (1/2) []
+  $ ResizableTall 1 (3/100) (1/2) []
+  ||| ResizableTall 1 (3/100) (3/5) []
 
   -- Mirrored variation of ResizableTall. In this layout, the large
   -- master window is at the top, and remaining windows tile at the
@@ -146,8 +167,8 @@ defaultLayouts = smartBorders(avoidStruts(
   -- Grid layout tries to equally distribute windows in the available
   -- space, increasing the number of columns and rows as necessary.
   -- Master window is at top left.
-  ||| Grid))
-
+  ||| Grid
+--  ||| minimize (Tall 1 (3/100) (1/2))))
 
 -- Here we define some layouts which will be assigned to specific
 -- workspaces based on the functionality of that workspace.
@@ -209,8 +230,15 @@ myKeyBindings =
     , ((myModMask .|. mod1Mask, xK_space), spawn "synapse")
     , ((myModMask, xK_u), focusUrgent)
     , ((0, 0x1008FF12), spawn "amixer -q set Master toggle")
-    , ((0, 0x1008FF11), spawn "amixer -q set Master 10%-")
-    , ((0, 0x1008FF13), spawn "amixer -q set Master 10%+")
+    , ((0, 0x1008FF11), spawn "amixer -q set Master 10%- && paplay /usr/share/sounds/freedesktop/stereo/audio-volume-change.oga")
+    , ((0, 0x1008FF13), spawn "amixer -q set Master 10%+ && paplay /usr/share/sounds/freedesktop/stereo/audio-volume-change.oga")
+    -- Brightness Keys
+    , ((0, 0x1008FF02), spawn "xbacklight + 10")
+    , ((0, 0x1008FF03), spawn "xbacklight - 10")
+    , ((myModMask, xK_m), withFocused minimizeWindow)
+    , ((myModMask .|. shiftMask, xK_m ), sendMessage RestoreNextMinimizedWin)
+    , ((myModMask, xK_g), goToSelected defaultGSConfig)
+    , ((myModMask, xK_o), windowMenu)
   ]
 
 
@@ -257,11 +285,18 @@ myKeyBindings =
       editing images.
 -}
 
+-- | Match against @WM_ROLE@.
+role :: Query String
+role = stringProperty "WM_WINDOW_ROLE"
+
 myManagementHooks :: [ManageHook]
 myManagementHooks = [
-  resource =? "synapse" --> doIgnore
+  isDialog <||> isInProperty "_NET_WM_WINDOW_TYPE" "_NET_WM_WINDOW_TYPE_UTILITY" --> doFloat
+  , isInProperty "_NET_WM_STATE" "_NET_WM_STATE_MODA" --> doFloat
+  , resource =? "synapse" --> doIgnore
   , resource =? "stalonetray" --> doIgnore
   , className =? "rdesktop" --> doFloat
+  , className =? "Vpnui" --> doFloat
   , (className =? "Komodo IDE") --> doF (W.shift "5:Dev")
   , (className =? "Komodo IDE" <&&> resource =? "Komodo_find2") --> doFloat
   , (className =? "Komodo IDE" <&&> resource =? "Komodo_gotofile") --> doFloat
@@ -269,6 +304,9 @@ myManagementHooks = [
   , (className =? "Empathy") --> doF (W.shift "7:Chat")
   , (className =? "Pidgin") --> doF (W.shift "7:Chat")
   , (className =? "Gimp-2.8") --> doF (W.shift "9:Pix")
+  , (className =? hangoutWinClassName) --> doF (W.shift "7:Chat")
+  , (className =? "Google-chrome-beta") --> doF (W.shift "6:Web")
+  , (className =? "zeal") --> doFloat
   ]
 
 
@@ -327,6 +365,59 @@ myKeys = myKeyBindings ++
       , (f, m) <- [(W.view, 0), (W.shift, shiftMask)]
   ]
 
+-------------------- Support for per-screen xmobars ---------
+-- Some parts of this should be merged into contrib sometime
+getScreens :: IO [Int]
+getScreens = openDisplay "" >>= liftA2 (<*) f closeDisplay
+    where f = fmap (zipWith const [0..]) . getScreenInfo
+
+-- multiPP :: PP -- ^ The PP to use if the screen is focused
+--         -> PP -- ^ The PP to use otherwise
+--         -> [Handle] -- ^ Handles for the status bars, in order of increasing X
+--                     -- screen number
+--         -> X ()
+-- multiPP = multiPP' dynamicLogString
+--  
+-- multiPP' :: (PP -> X String) -> PP -> PP -> [Handle] -> X ()
+-- multiPP' dynlStr focusPP unfocusPP handles = do
+--     state <- get
+--     let pickPP :: WorkspaceId -> WriterT (Last XState) X String
+--         pickPP ws = do
+--             let isFoc = (ws ==) . W.tag . W.workspace . W.current $ windowset state
+--             put state {windowset = W.view ws $ windowset state }
+--             out <- lift $ dynlStr $ if isFoc then focusPP else unfocusPP
+--             when isFoc $ get >>= tell . Last . Just
+--             return out
+--     traverse put . getLast
+--         =<< execWriterT . (io . zipWithM_ hPutStrLn handles <=< mapM pickPP) . catMaybes
+--         =<< mapM screenWorkspace (zipWith const [0..] handles)
+--     return ()
+ 
+mergePPOutputs :: [PP -> X String] -> PP -> X String
+mergePPOutputs x pp = fmap (intercalate (ppSep pp)) . sequence . sequence x $ pp
+
+onlyTitle :: PP -> PP
+onlyTitle pp = defaultPP { ppCurrent = ppCurrent pp
+                         , ppHidden = ppHidden pp
+                         , ppVisible = ppVisible pp
+                         , ppLayout = ppLayout pp
+                         , ppTitle = ppTitle pp }
+ 
+-- | Requires a recent addition to xmobar (>0.9.2), otherwise you have to use
+-- multiple configuration files, which gets messy
+xmobarScreen :: Int -> IO Handle
+xmobarScreen = spawnPipe . ("xmobar ~/.xmonad/xmobarrc -x " ++) . show
+ 
+myPP :: PP
+myPP = xmobarPP {
+      ppTitle = xmobarColor myTitleColor "" . shorten myTitleLength
+      , ppCurrent = xmobarColor myCurrentWSColor ""
+        . wrap myCurrentWSLeft myCurrentWSRight
+      , ppVisible = xmobarColor myVisibleWSColor ""
+        . wrap myVisibleWSLeft myVisibleWSRight
+      , ppUrgent = xmobarColor myUrgentWSColor ""
+        . wrap myUrgentWSLeft myUrgentWSRight
+    }
 
 {-
   Here we actually stitch together all the configuration settings
@@ -334,9 +425,13 @@ myKeys = myKeyBindings ++
   content into it via the logHook.
 -}
 
+main :: IO ()
 main = do
   xmproc <- spawnPipe "xmobar ~/.xmonad/xmobarrc"
+--  xmonad . withUrgencyHook NoUrgencyHook . myConfig =<< mapM xmobarScreen =<< getScreens
   xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig {
+
+-- myConfig hs = defaultConfig {
     focusedBorderColor = myFocusedBorderColor
   , normalBorderColor = myNormalBorderColor
   , terminal = myTerminal
@@ -362,5 +457,15 @@ main = do
       , ppUrgent = xmobarColor myUrgentWSColor ""
         . wrap myUrgentWSLeft myUrgentWSRight
     }
-  }
-    `additionalKeys` myKeys
+    <+> updatePointer (TowardsCentre 0.2 0.2)
+
+--   , logHook = takeTopFocus <+> do
+--         multiPP'
+--              (dynamicLogString . onlyTitle)
+--              myPP
+--              myPP { ppTitle = const "" }
+--              hs
+--         updatePointer (TowardsCentre 0.2 0.2)
+  
+  } `additionalKeys` myKeys
+  
