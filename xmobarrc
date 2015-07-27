@@ -13,7 +13,8 @@
 Config { 
   -- Set font and default foreground/background colors. Note that
   -- the height of xmobar is controlled by the font you use.
-  font = "xft:Ubuntu Mono-14",
+  -- font = "xft:Ubuntu Mono-12",
+  font = "xft:Noto Sans Japanese-10",
   bgColor = "black",
   fgColor = "grey",
 
@@ -22,7 +23,7 @@ Config {
   -- of your screen to make it play nicely with stalonetray, which we
   -- want to be taking up the remainer of the space on the right side
   -- of your screen.
-  position = TopW L 95, 
+  position = TopW L 92, 
 
   -- list of commands which gather information about your system for
   -- presentation in the bar. 
@@ -40,7 +41,7 @@ Config {
     ] 10,
 
     -- Date formatting
-    Run Date "%a %b %_d %l:%M" "date" 10,
+    Run Date "%F %H:%M:%S" "date" 10,
 
     -- Battery information. This is likely to require some customization
     -- based upon your specific hardware. Or, for a desktop you may want
@@ -57,11 +58,13 @@ Config {
     -- To get volume information, we run a custom bash script.
     -- This is because the built-in volume support in xmobar is disabled
     -- in Debian and derivatives like Ubuntu. 
-    Run Com "/bin/bash" ["-c", "~/.xmonad/get-volume"] "myvolume" 10,
+--    Run Com "/bin/bash" ["-c", "~/.xmonad/get-volume"] "myvolume" 10,
 
     -- This line tells xmobar to read input from stdin. That's how we
     -- get the information that xmonad is sending it for display.
-    Run StdinReader
+    Run StdinReader,
+    Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red", "-t", "<dev>: ↓<rx>KB ↑<tx>KB"] 10,
+    Run Network "wlan0" ["-L","0","-H","32","--normal","green","--high","red", "-t", "<dev>: ↓<rx>KB ↑<tx>KB"] 10
    ],
 
    -- Separator character used to wrape variables in the xmobar template 
@@ -73,5 +76,5 @@ Config {
 
    -- Overall template for the layout of the xmobar contents. Note that
    -- space is significant and can be used to add padding.
-   template = "%StdinReader% }{ %battery% | %cpu% | %memory% | Vol: %myvolume%    <fc=#e6744c>%date%</fc>     "
+   template = "%StdinReader% }{ %battery% | %cpu% | %memory% | %eth0% %wlan0% <fc=#e6744c>%date%</fc>     "
 }
