@@ -39,21 +39,14 @@ xcompmgr -n &
 # Activate primary screen 
 xrandr --output LVDS-1 --auto --primary
 
-# If we find that a screen is connected via VGA, activate it and position it
-# to the left of the primary screen.
-xrandr | grep 'VGA-1 connected' | ifne xrandr --output VGA-1 --auto --left-of LVDS-1
-
-# If we find that a screen is connected via DVI, activate it and position it
-# to the left of the primary screen.
-xrandr | grep 'DP-1 connected' | ifne xrandr --output DP-1 --auto --left-of LVDS-1
-
+~/.xmonad/xrandr_reconnect.sh
 
 #
 # LOAD SCREEN BACKGROUNDS
 #
 
 # To set your backgrounds, run nitrogren /path/to/images
-nitrogen --restore &
+nitrogen --restore ~/Pictures/wallpapers/NASA-Gravity &
 
 
 #
@@ -82,7 +75,7 @@ nitrogen --restore &
 #
 stalonetray \
   --icon-gravity E \
-  --geometry 5x1-0+0 \
+  --geometry 5x1+1246+0 \
   --max-geometry 5x1-0+0 \
   --background '#000000' \
   --skip-taskbar \
@@ -102,5 +95,6 @@ gnome-keyring-daemon --start --components=gpg,pkcs11,secrets,ssh
 setxkbmap -option 'ctrl:nocaps'
 
 # Now, finally, start xmonad
+#exec ck-launch-session dbus-launch --sh-syntax --exit-with-session xmonad
 exec xmonad
 
