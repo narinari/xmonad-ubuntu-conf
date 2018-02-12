@@ -14,7 +14,7 @@ Config {
   -- Set font and default foreground/background colors. Note that
   -- the height of xmobar is controlled by the font you use.
   -- font = "xft:Ubuntu Mono-12",
-  font = "xft:Noto Sans Japanese-10",
+  font = "xft:Ricty Discord-11",
   bgColor = "black",
   fgColor = "grey",
 
@@ -63,8 +63,8 @@ Config {
     -- This line tells xmobar to read input from stdin. That's how we
     -- get the information that xmonad is sending it for display.
     Run StdinReader,
-    Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red", "-t", "<dev>: ↓<rx>KB ↑<tx>KB"] 10,
-    Run Network "wlan0" ["-L","0","-H","32","--normal","green","--high","red", "-t", "<dev>: ↓<rx>KB ↑<tx>KB"] 10
+    Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red", "-t", "<dev>: rx=<rx>KB tx=<tx>KB"] 10,
+    Run Network "wlan0" ["-L","0","-H","32","--normal","green","--high","red", "-t", "<dev>: rx=<rx>KB tx=<tx>KB"] 10
    ],
 
    -- Separator character used to wrape variables in the xmobar template 
