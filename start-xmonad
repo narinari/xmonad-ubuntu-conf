@@ -10,6 +10,10 @@
 # GENERAL INITIALIZATION
 #
 
+# export SDL_VIDEO_X11_DGAMOUSE=0
+
+# compton --background=glx --glx-swap-method=buffer-age
+
 # Identify the home of our gtkrc file, important for setting styles of 
 # gtk-based applications
 export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
@@ -37,16 +41,16 @@ xcompmgr -n &
 # connected screens and find out what names you should use to refer to them.
 
 # Activate primary screen 
-xrandr --output LVDS-1 --auto --primary
+#xrandr --output LVDS-1 --auto --primary
 
-~/.xmonad/xrandr_reconnect.sh
+#~/.xmonad/xrandr_reconnect.sh
 
 #
 # LOAD SCREEN BACKGROUNDS
 #
 
 # To set your backgrounds, run nitrogren /path/to/images
-nitrogen --restore ~/Pictures/wallpapers/NASA-Gravity &
+#nitrogen --restore ~/Pictures/wallpapers/NASA-Gravity &
 
 
 #
@@ -75,7 +79,7 @@ nitrogen --restore ~/Pictures/wallpapers/NASA-Gravity &
 #
 stalonetray \
   --icon-gravity E \
-  --geometry 5x1+1246+0 \
+  --geometry 5x1+3710+0 \
   --max-geometry 5x1-0+0 \
   --background '#000000' \
   --skip-taskbar \
