@@ -58,7 +58,7 @@ import qualified XMonad.StackSet as W
 -}
 
 myModMask            = mod4Mask       -- changes the mod key to "super"
-myFocusedBorderColor = "#DD4814"      -- color of focused border
+myFocusedBorderColor = "#bd93f9"      -- color of focused border
 myNormalBorderColor  = "#cccccc"      -- color of inactive border
 myBorderWidth        = 1              -- width of border around windows
 myTerminal           = "terminator"   -- which terminal software to use
@@ -220,12 +220,13 @@ myLayouts =
   Launch the command, then type the key in question and watch
   the output.
 -}
-
 myKeyBindings =
   [
-    ((myModMask, xK_b), sendMessage ToggleStruts)
+    ((myModMask .|. shiftMask, xK_space), sendMessage NextLayout)
+    , ((myModMask, xK_b), sendMessage ToggleStruts)
     , ((myModMask, xK_a), sendMessage MirrorShrink)
     , ((myModMask, xK_z), sendMessage MirrorExpand)
+    , ((myModMask .|. shiftMask, xK_l), spawn "/usr/bin/xset dpms force suspend && slock")
     , ((myModMask, xK_p), spawn "synapse")
     , ((myModMask .|. mod1Mask, xK_space), spawn "synapse")
     , ((myModMask, xK_u), focusUrgent)
@@ -237,8 +238,10 @@ myKeyBindings =
     , ((0, 0x1008FF03), spawn "xbacklight - 10")
     , ((myModMask, xK_m), withFocused minimizeWindow)
     , ((myModMask .|. shiftMask, xK_m ), sendMessage RestoreNextMinimizedWin)
-    , ((myModMask, xK_g), goToSelected defaultGSConfig)
+    , ((myModMask, xK_g), goToSelected def)
     , ((myModMask, xK_o), windowMenu)
+    , ((shiftMask, 0x1008ff2a), spawn "sudo /sbin/reboot")
+    , ((myModMask .|. shiftMask, 0x1008ff2a), spawn "sudo /sbin/shutdown -h now")
   ]
 
 
@@ -371,37 +374,37 @@ getScreens :: IO [Int]
 getScreens = openDisplay "" >>= liftA2 (<*) f closeDisplay
     where f = fmap (zipWith const [0..]) . getScreenInfo
 
--- multiPP :: PP -- ^ The PP to use if the screen is focused
---         -> PP -- ^ The PP to use otherwise
---         -> [Handle] -- ^ Handles for the status bars, in order of increasing X
---                     -- screen number
---         -> X ()
--- multiPP = multiPP' dynamicLogString
---  
--- multiPP' :: (PP -> X String) -> PP -> PP -> [Handle] -> X ()
--- multiPP' dynlStr focusPP unfocusPP handles = do
---     state <- get
---     let pickPP :: WorkspaceId -> WriterT (Last XState) X String
---         pickPP ws = do
---             let isFoc = (ws ==) . W.tag . W.workspace . W.current $ windowset state
---             put state {windowset = W.view ws $ windowset state }
---             out <- lift $ dynlStr $ if isFoc then focusPP else unfocusPP
---             when isFoc $ get >>= tell . Last . Just
---             return out
---     traverse put . getLast
---         =<< execWriterT . (io . zipWithM_ hPutStrLn handles <=< mapM pickPP) . catMaybes
---         =<< mapM screenWorkspace (zipWith const [0..] handles)
---     return ()
+multiPP :: PP -- ^ The PP to use if the screen is focused
+        -> PP -- ^ The PP to use otherwise
+        -> [Handle] -- ^ Handles for the status bars, in order of increasing X
+                    -- screen number
+        -> X ()
+multiPP = multiPP' dynamicLogString
+
+multiPP' :: (PP -> X String) -> PP -> PP -> [Handle] -> X ()
+multiPP' dynlStr focusPP unfocusPP handles = do
+    state <- get
+    let pickPP :: WorkspaceId -> WriterT (Last XState) X String
+        pickPP ws = do
+            let isFoc = (ws ==) . W.tag . W.workspace . W.current $ windowset state
+            put state {windowset = W.view ws $ windowset state }
+            out <- lift $ dynlStr $ if isFoc then focusPP else unfocusPP
+            when isFoc $ get >>= tell . Last . Just
+            return out
+    traverse put . getLast
+        =<< execWriterT . (io . zipWithM_ hPutStrLn handles <=< mapM pickPP) . catMaybes
+        =<< mapM screenWorkspace (zipWith const [0..] handles)
+    return ()
  
 mergePPOutputs :: [PP -> X String] -> PP -> X String
 mergePPOutputs x pp = fmap (intercalate (ppSep pp)) . sequence . sequence x $ pp
 
 onlyTitle :: PP -> PP
-onlyTitle pp = defaultPP { ppCurrent = ppCurrent pp
-                         , ppHidden = ppHidden pp
-                         , ppVisible = ppVisible pp
-                         , ppLayout = ppLayout pp
-                         , ppTitle = ppTitle pp }
+onlyTitle pp = def { ppCurrent = ppCurrent pp
+                   , ppHidden = ppHidden pp
+                   , ppVisible = ppVisible pp
+                   , ppLayout = ppLayout pp
+                   , ppTitle = ppTitle pp }
  
 -- | Requires a recent addition to xmobar (>0.9.2), otherwise you have to use
 -- multiple configuration files, which gets messy
@@ -409,15 +412,15 @@ xmobarScreen :: Int -> IO Handle
 xmobarScreen = spawnPipe . ("xmobar ~/.xmonad/xmobarrc -x " ++) . show
  
 myPP :: PP
-myPP = xmobarPP {
-      ppTitle = xmobarColor myTitleColor "" . shorten myTitleLength
-      , ppCurrent = xmobarColor myCurrentWSColor ""
-        . wrap myCurrentWSLeft myCurrentWSRight
-      , ppVisible = xmobarColor myVisibleWSColor ""
-        . wrap myVisibleWSLeft myVisibleWSRight
-      , ppUrgent = xmobarColor myUrgentWSColor ""
-        . wrap myUrgentWSLeft myUrgentWSRight
-    }
+myPP = xmobarPP
+     { ppTitle = xmobarColor myTitleColor "" . shorten myTitleLength
+     , ppCurrent = xmobarColor myCurrentWSColor ""
+       . wrap myCurrentWSLeft myCurrentWSRight
+     , ppVisible = xmobarColor myVisibleWSColor ""
+       . wrap myVisibleWSLeft myVisibleWSRight
+     , ppUrgent = xmobarColor myUrgentWSColor ""
+       . wrap myUrgentWSLeft myUrgentWSRight
+     }
 
 {-
   Here we actually stitch together all the configuration settings
@@ -426,46 +429,31 @@ myPP = xmobarPP {
 -}
 
 main :: IO ()
-main = do
-  xmproc <- spawnPipe "xmobar ~/.xmonad/xmobarrc"
---  xmonad . withUrgencyHook NoUrgencyHook . myConfig =<< mapM xmobarScreen =<< getScreens
-  xmonad $ withUrgencyHook NoUrgencyHook $ defaultConfig {
+main = xmonad . withUrgencyHook NoUrgencyHook . docks . myConfig =<< mapM xmobarScreen =<< getScreens
+  where
+  myConfig hs = defaultConfig
+    { focusedBorderColor = myFocusedBorderColor
+    , normalBorderColor = myNormalBorderColor
+    , terminal = myTerminal
+    , borderWidth = myBorderWidth
+    , layoutHook = myLayouts
+    , workspaces = myWorkspaces
+    , modMask = myModMask
+    , handleEventHook = fullscreenEventHook <+> docksEventHook
+    , startupHook = do
+        setWMName "LG3D"
+        windows $ W.greedyView startupWorkspace
+        spawn "~/.xmonad/startup-hook"
+    , manageHook = manageHook def
+        <+> composeAll myManagementHooks
+        <+> manageDocks
+    , logHook = takeTopFocus
+--        <+> dynamicLogWithPP myPP { ppOutput = hPutStrLn hs }
+        <+> multiPP'
+               (dynamicLogString . onlyTitle)
+               myPP
+               myPP { ppTitle = const "" }
+               hs
+        <+> updatePointer (0.5, 0.5) (0.2, 0.2)
+    } `additionalKeys` myKeys `removeKeys` [(myModMask, xK_space)]
 
--- myConfig hs = defaultConfig {
-    focusedBorderColor = myFocusedBorderColor
-  , normalBorderColor = myNormalBorderColor
-  , terminal = myTerminal
-  , borderWidth = myBorderWidth
-  , layoutHook = myLayouts
-  , workspaces = myWorkspaces
-  , modMask = myModMask
-  , handleEventHook = fullscreenEventHook
-  , startupHook = do
-      setWMName "LG3D"
-      windows $ W.greedyView startupWorkspace
-      spawn "~/.xmonad/startup-hook"
-  , manageHook = manageHook defaultConfig
-      <+> composeAll myManagementHooks
-      <+> manageDocks
-  , logHook = takeTopFocus <+> dynamicLogWithPP xmobarPP {
-      ppOutput = hPutStrLn xmproc
-      , ppTitle = xmobarColor myTitleColor "" . shorten myTitleLength
-      , ppCurrent = xmobarColor myCurrentWSColor ""
-        . wrap myCurrentWSLeft myCurrentWSRight
-      , ppVisible = xmobarColor myVisibleWSColor ""
-        . wrap myVisibleWSLeft myVisibleWSRight
-      , ppUrgent = xmobarColor myUrgentWSColor ""
-        . wrap myUrgentWSLeft myUrgentWSRight
-    }
-    <+> updatePointer (TowardsCentre 0.2 0.2)
-
---   , logHook = takeTopFocus <+> do
---         multiPP'
---              (dynamicLogString . onlyTitle)
---              myPP
---              myPP { ppTitle = const "" }
---              hs
---         updatePointer (TowardsCentre 0.2 0.2)
-  
-  } `additionalKeys` myKeys
-  
