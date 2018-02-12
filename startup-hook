@@ -48,8 +48,8 @@ fi
 # If you don't use the ssh keychain you may not want this. Commented
 # by default as it is assumed many users will not want this feature.
 
-# export SSH_ASKPASS="/usr/bin/ssh-askpass"
-# cat /dev/null | ssh-add &
+export SSH_ASKPASS="/usr/bin/ssh-askpass"
+cat /dev/null | ssh-add &
 
 # I disable the middle mouse button because otherwise I constantly 
 # accidentally paste unwanted text in the middle of my code while scrolling. 
@@ -67,5 +67,7 @@ fi
 # change depending on what devices you have plugged into USB. We extract the
 # id of the device from the output of xinput, then use it to disable the
 # device
-TOUCHPAD_ID=`xinput | grep 'Synaptics TouchPad' | cut -f 2 | cut -f 2 -d =`
-xinput set-prop $TOUCHPAD_ID "Device Enabled" 0
+#TOUCHPAD_ID=`xinput | grep 'Synaptics TouchPad' | cut -f 2 | cut -f 2 -d =`
+#xinput set-prop $TOUCHPAD_ID "Device Enabled" 0
+
+fcitx-autostart
