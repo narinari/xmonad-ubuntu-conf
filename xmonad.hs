@@ -30,6 +30,7 @@ import System.IO
 import XMonad
 import XMonad.Main
 import XMonad.Actions.GridSelect
+import XMonad.Actions.Minimize
 import XMonad.Actions.UpdatePointer
 import XMonad.Actions.WindowMenu
 import XMonad.Hooks.SetWMName
@@ -237,7 +238,7 @@ myKeyBindings =
     , ((0, 0x1008FF02), spawn "xbacklight + 10")
     , ((0, 0x1008FF03), spawn "xbacklight - 10")
     , ((myModMask, xK_m), withFocused minimizeWindow)
-    , ((myModMask .|. shiftMask, xK_m ), sendMessage RestoreNextMinimizedWin)
+    , ((myModMask .|. shiftMask, xK_m ), withLastMinimized maximizeWindow)
     , ((myModMask, xK_g), goToSelected def)
     , ((myModMask, xK_o), windowMenu)
     , ((shiftMask, 0x1008ff2a), spawn "sudo /sbin/reboot")
