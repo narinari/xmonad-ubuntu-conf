@@ -53,31 +53,60 @@ import XMonad.Hooks.UrgencyHook
 import XMonad.Hooks.ICCCMFocus
 import qualified XMonad.StackSet as W
 
+import qualified DBus as D
+import qualified DBus.Client as D
+import qualified Codec.Binary.UTF8.String as UTF8
+
 {-
   Xmonad configuration variables. These settings control some of the
   simpler parts of xmonad's behavior and are straightforward to tweak.
 -}
 
-myModMask            = mod4Mask       -- changes the mod key to "super"
+-- colors
 myFocusedBorderColor = "#bd93f9"      -- color of focused border
 myNormalBorderColor  = "#cccccc"      -- color of inactive border
+myTitleColor     = "#eeeeee"  -- color of window title
+myCurrentWSColor = "#e6744c"  -- color of active workspace
+myVisibleWSColor = "#c185a7"  -- color of inactive workspace
+myUrgentWSColor  = "#cc0000"  -- color of workspace with 'urgent' window
+fg        = "#ebdbb2"
+bg        = "#282828"
+gray      = "#a89984"
+bg1       = "#3c3836"
+bg2       = "#505050"
+bg3       = "#665c54"
+bg4       = "#7c6f64"
+
+green     = "#b8bb26"
+darkgreen = "#98971a"
+red       = "#fb4934"
+darkred   = "#cc241d"
+yellow    = "#fabd2f"
+blue      = "#83a598"
+purple    = "#d3869b"
+aqua      = "#8ec07c"
+white     = "#eeeeee"
+
+pur2      = "#5b51c9"
+blue2     = "#2266d0"
+
+-- Font
+myFont = "xft:SpaceMono Nerd Font Mono:" ++ "fontformat=truetype:size=10:antialias=true"
+
+-- props
+myModMask            = mod4Mask       -- changes the mod key to "super"
 myBorderWidth        = 1              -- width of border around windows
-myTerminal           = "terminator"   -- which terminal software to use
+myTerminal           = "termite"   -- which terminal software to use
 myIMRosterTitle      = "ハングアウト"   -- title of roster on IM workspace
                                       -- use "Buddy List" for Pidgin, but
                                       -- "Contact List" for Empathy
-
 
 {-
   Xmobar configuration variables. These settings control the appearance
   of text which xmonad is sending to xmobar via the DynamicLog hook.
 -}
 
-myTitleColor     = "#eeeeee"  -- color of window title
 myTitleLength    = 80         -- truncate window title to this length
-myCurrentWSColor = "#e6744c"  -- color of active workspace
-myVisibleWSColor = "#c185a7"  -- color of inactive workspace
-myUrgentWSColor  = "#cc0000"  -- color of workspace with 'urgent' window
 myCurrentWSLeft  = "["        -- wrap active workspace with these
 myCurrentWSRight = "]"
 myVisibleWSLeft  = "("        -- wrap inactive workspace with these
@@ -114,7 +143,7 @@ myWorkspaces =
     "0:VM",    "Extr1", "Extr2"
   ]
 
-startupWorkspace = "5:Dev"  -- which workspace do you want to be on after launch?
+startupWorkspace = "6:Web"  -- which workspace do you want to be on after launch?
 
 {-
   Layout configuration. In this section we identify which xmonad
@@ -228,8 +257,8 @@ myKeyBindings =
     , ((myModMask, xK_a), sendMessage MirrorShrink)
     , ((myModMask, xK_z), sendMessage MirrorExpand)
     , ((myModMask .|. shiftMask, xK_l), spawn "/usr/bin/xset dpms force suspend && slock")
-    , ((myModMask, xK_p), spawn "synapse")
-    , ((myModMask .|. mod1Mask, xK_space), spawn "synapse")
+    , ((myModMask, xK_p), spawn "rofi -show run")
+    , ((myModMask .|. mod1Mask, xK_space), spawn "rofi -show run")
     , ((myModMask, xK_u), focusUrgent)
     , ((0, 0x1008FF12), spawn "amixer -q set Master toggle")
     , ((0, 0x1008FF11), spawn "amixer -q set Master 10%- && paplay /usr/share/sounds/freedesktop/stereo/audio-volume-change.oga")
@@ -301,6 +330,9 @@ myManagementHooks = [
   , resource =? "stalonetray" --> doIgnore
   , className =? "rdesktop" --> doFloat
   , className =? "Vpnui" --> doFloat
+  , className =? "feh" --> doFloat
+  , className =? "OnBoard" --> doFloat
+  , className =? "MComix" --> doF (W.shift "2:Hub")
   , (className =? "Komodo IDE") --> doF (W.shift "5:Dev")
   , (className =? "Komodo IDE" <&&> resource =? "Komodo_find2") --> doFloat
   , (className =? "Komodo IDE" <&&> resource =? "Komodo_gotofile") --> doFloat
@@ -310,6 +342,7 @@ myManagementHooks = [
   , (className =? "Gimp-2.8") --> doF (W.shift "9:Pix")
   , (className =? hangoutWinClassName) --> doF (W.shift "7:Chat")
   , (className =? "Google-chrome-beta") --> doF (W.shift "6:Web")
+  , (className =? "Firefox") --> doF (W.shift "6:Web")
   , (className =? "zeal") --> doFloat
   ]
 
@@ -430,9 +463,21 @@ myPP = xmobarPP
 -}
 
 main :: IO ()
-main = xmonad . withUrgencyHook NoUrgencyHook . docks . myConfig =<< mapM xmobarScreen =<< getScreens
+main = do
+  dbus <- D.connectSession
+  D.requestName dbus (D.busName_ "org.xmonad.Log")
+    [D.nameAllowReplacement, D.nameReplaceExisting, D.nameDoNotQueue]
+
+  xmonad
+    $ withUrgencyHook NoUrgencyHook
+    $ docks
+    $ myConfig
+      { logHook = dynamicLogWithPP(logToDBus dbus)
+               <+> takeTopFocus
+               <+> updatePointer (0.5, 0.5) (0.2, 0.2)
+      }
   where
-  myConfig hs = defaultConfig
+  myConfig = defaultConfig
     { focusedBorderColor = myFocusedBorderColor
     , normalBorderColor = myNormalBorderColor
     , terminal = myTerminal
@@ -448,13 +493,39 @@ main = xmonad . withUrgencyHook NoUrgencyHook . docks . myConfig =<< mapM xmobar
     , manageHook = manageHook def
         <+> composeAll myManagementHooks
         <+> manageDocks
-    , logHook = takeTopFocus
---        <+> dynamicLogWithPP myPP { ppOutput = hPutStrLn hs }
-        <+> multiPP'
-               (dynamicLogString . onlyTitle)
-               myPP
-               myPP { ppTitle = const "" }
-               hs
-        <+> updatePointer (0.5, 0.5) (0.2, 0.2)
+--    , logHook = takeTopFocus
+--        <+> updatePointer (0.5, 0.5) (0.2, 0.2)
     } `additionalKeys` myKeys `removeKeys` [(myModMask, xK_space)]
+
+-- Override the PP values as you would otherwise, adding colors etc depending
+-- on  the statusbar used
+logToDBus :: D.Client -> PP
+logToDBus dbus = def
+    { ppOutput = dbusOutput dbus
+    , ppCurrent = wrap ("%{F" ++ blue2 ++ "} ") " %{F-}"
+    , ppVisible = wrap ("%{F" ++ blue ++ "} ") " %{F-}"
+    , ppUrgent = wrap ("%{F" ++ red ++ "} ") " %{F-}"
+    , ppHidden = wrap " " " "
+    , ppWsSep = ""
+    , ppSep = " | "
+    , ppTitle = fixWitdh 25
+}
+
+-- Emit a DBus signal on log updates
+dbusOutput :: D.Client -> String -> IO ()
+dbusOutput dbus str = do
+    let signal = (D.signal objectPath interfaceName memberName) {
+            D.signalBody = [D.toVariant $ UTF8.decodeString str]
+        }
+    D.emit dbus signal
+  where
+    objectPath = D.objectPath_ "/org/xmonad/Log"
+    interfaceName = D.interfaceName_ "org.xmonad.Log"
+    memberName = D.memberName_ "Update"
+
+
+fixWitdh :: Int -> String -> String
+fixWitdh len str = sstr ++ replicate (len - length sstr) ' '
+  where
+    sstr = shorten len str
 

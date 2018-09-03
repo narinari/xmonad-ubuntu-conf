@@ -1,0 +1,607 @@
+[colors]
+background = #d0303030
+background-transparent = #00303030
+background-alt = #c0303030
+background-alt-2 = #ff5fafcf
+foreground = #eeeeee
+foreground-alt = #c1c2c3
+
+red = #fb4934
+green = #b8bb26
+yellow = #fabd2f
+blue = #83a598
+purple = #d3869b
+aqua = #8ec07c
+orange = #fe8019
+white = #dddddd
+
+blue_arch = #83afe1
+
+grey = #5b51c9
+grey1 = #5bb1c9
+grey2 = #5bf1c9
+
+primary = green
+secondary = blue
+alert = red
+
+[global/wm]
+margin-top = 0
+margin-bottom = 0
+
+[settings]
+screenchange-reload = true
+
+[bar/base]
+width = 100%
+height = 24
+offset-x = 0
+offset-y = 0
+
+background = ${colors.background-alt}
+foreground = ${colors.foreground}
+
+overline-size = 0
+underline-size = 0
+
+border-bottom-size = 0
+border-bottom-color = #ffffff
+
+padding-left = 0
+padding-right = 1
+module-margin-left = 1
+module-margin-right = 1
+
+font-0 = LiberationMono:fontformat=truetype:size=10:antialias=true;1
+font-1 = SpaceMono Nerd Font:fontformat=truetype:size=16:antialias=true;3
+font-2 = SpaceMono Nerd Font:pixelsize=10;1
+font-3 = Siji:fontformat=truetype:size=12:antialias=true;1
+
+radius = 0.0
+fixed-center = false
+
+line-size = 3
+line-color = #f00
+
+border-size = 0
+border-color = #00000000
+
+tray-position = right
+tray-padding = 2
+tray-background = ${root.background}
+
+[bar/desktop]
+inherit = bar/base
+monitor = ${env:MONITOR:HDMI-A-1}
+
+modules-left = xmonad
+modules-center = mpd
+modules-right = volume updates cpu memory date powermenu
+
+[bar/laptop]
+inherit = bar/base
+monitor = ${env:MONITOR:eDP1}
+monitor-fallback = ${env:MONITOR:HDMI1}
+
+height = 36
+font-0 = LiberationMono:fontformat=truetype:size=16:antialias=true;1
+font-1 = SpaceMono Nerd Font:fontformat=truetype:size=24:antialias=true;3
+font-2 = SpaceMono Nerd Font:pixelsize=16;1
+font-3 = Siji:fontformat=truetype:size=16:antialias=true;1
+tray-max-size = 24
+
+modules-left = xmonad
+modules-center = alsa
+modules-right = cpu battery backlight date powermenu
+
+[bar/laptop2]
+inherit = bar/base
+monitor = ${env:MONITOR:eDP1}
+monitor-fallback = ${env:MONITOR:HDMI1}
+
+modules-left = xmonad
+modules-center = touchmenu
+modules-right = cpu battery backlight date powermenu
+
+[module/xmonad]
+type = custom/script
+exec = xmonad-log
+
+tail = true
+
+[module/xwindow]
+type = internal/xwindow
+label = %title:0:30:...%
+
+[module/xkeyboard]
+type = internal/xkeyboard
+blacklist-0 = num lock
+
+format-prefix = " "
+format-prefix-foreground = ${colors.foreground}
+format-prefix-underline = ${colors.grey}
+
+label-layout = %layout%
+label-layout-underline = ${colors.secondary}
+
+label-indicator-padding = 2
+label-indicator-margin = 1
+label-indicator-background = ${colors.secondary}
+label-indicator-underline = ${colors.grey}
+
+[module/filesystem]
+type = internal/fs
+interval = 25
+
+mount-0 = /
+mount-1 = /home/narinari
+
+label-mounted = %{F#5b51c9}%mountpoint%%{F-}: %percentage_used%%
+label-unmounted = %mountpoint% not mounted
+label-unmounted-foreground = ${colors.foreground}
+
+#[module/updates]
+#type = custom/script
+#exec = $HOME/dotfiles/scripts/updates.sh
+#
+#format-prefix = "%{T2}%{T-} "
+#format-prefix-foreground = ${colors.blue_arch}
+#format-underline = ${colors.grey}
+#
+#interval = 120
+
+#[module/redshift]
+#type = custom/script
+#interval = 5
+#
+#exec = ~/.config/polybar/redshift.sh
+
+[module/battery]
+type = internal/battery
+battery = BAT1
+adapter = ADP1
+full-at = 98
+time-format = %H:%M
+
+format-charging = <animation-charging>
+format-discharging = <ramp-capacity> <label-discharging>
+label-discharging = %percentage%%
+format-full-prefix = "f "
+format-full-prefix-foreground = ${colors.foreground}
+
+ramp-capacity-0 = ""
+ramp-capacity-1 = ""
+ramp-capacity-2 = ""
+ramp-capacity-3 = ""
+ramp-capacity-4 = ""
+ramp-capacity-foreground = ${colors.foreground}
+
+animation-charging-0 = ""
+animation-charging-1 = ""
+animation-charging-2 = ""
+animation-charging-3 = ""
+animation-charging-4 = ""
+animation-charging-foreground = ${colors.foreground}
+animation-charging-framerate = 750
+
+[module/alsa]
+type = internal/alsa
+
+format-volume = <bar-volume> <label-volume>
+
+;format-volume = <label-volume>
+label-volume =  %percentage%%
+label-volume-foreground = ${root.foreground}
+
+format-muted-prefix = " "
+format-muted-foreground = ${colors.foreground}
+label-muted = sound muted
+
+bar-volume-width = 6
+bar-volume-foreground-0 = ${colors.grey2}
+bar-volume-foreground-1 = ${colors.grey2}
+bar-volume-foreground-2 = ${colors.grey2}
+bar-volume-foreground-3 = ${colors.grey2}
+bar-volume-foreground-4 = ${colors.grey2}
+bar-volume-foreground-5 = ${colors.grey1}
+bar-volume-foreground-6 = ${colors.grey}
+bar-volume-gradient = false
+bar-volume-indicator = |
+bar-volume-indicator-font = 0
+bar-volume-fill = 
+bar-volume-fill-font = 1
+bar-volume-empty = 
+bar-volume-empty-font = 1
+bar-volume-empty-foreground = ${colors.foreground}
+
+[module/mpd]
+type = internal/mpd
+format-online = <label-song>
+
+icon-prev = 
+icon-stop = 
+icon-play = 
+icon-pause = 
+icon-next = 
+
+label-song-maxlen = 40
+label-song-ellipsis = true
+
+bar-progress-width = 10
+bar-progress-indicator = 
+bar-progress-fill = _
+bar-progress-empty = _
+
+[module/cpu]
+type = internal/cpu
+interval = 2
+format = <ramp-load>
+ramp-load-7 = █
+ramp-load-6 = ▇
+ramp-load-5 = ▆
+ramp-load-4 = ▅
+ramp-load-3 = ▄
+ramp-load-2 = ▃
+ramp-load-1 = ▂
+ramp-load-0 = ▁
+format-prefix = "%{T2}%{T-} "
+format-prefix-foreground = ${colors.foreground}
+format-underline = ${colors.grey}
+label = %percentage%%
+
+[module/memory]
+type = internal/memory
+interval = 2
+format-prefix = "%{T2}%{T-} "
+format-prefix-foreground = ${colors.foreground}
+format-underline = ${colors.grey}
+label = %percentage_used%%
+
+[module/eth]
+type = internal/network
+interface = wlp1s0
+interval = 3.0
+
+format-connected-underline = ${colors.grey}
+format-connected-prefix = " "
+format-connected-prefix-foreground = ${colors.foreground}
+label-connected = %local_ip%
+
+[module/date]
+type = internal/date
+interval = 5
+
+date =
+date-alt = " %Y-%m-%d"
+
+time = %H:%M
+time-alt = %H:%M
+
+format-prefix = "%{T2}%{T-}"
+format-prefix-foreground = ${colors.foreground}
+format-underline = ${colors.grey}
+
+label = %date% %time%
+
+[module/volume]
+type = internal/volume
+
+format-volume = <label-volume>
+label-volume =  %percentage%%
+label-volume-foreground = ${root.foreground}
+
+format-muted-prefix = " "
+format-muted-foreground = ${colors.foreground}
+label-muted = sound muted
+
+bar-volume-width = 10
+bar-volume-foreground-0 = ${colors.grey2}
+bar-volume-foreground-1 = ${colors.grey2}
+bar-volume-foreground-2 = ${colors.grey2}
+bar-volume-foreground-3 = ${colors.grey2}
+bar-volume-foreground-4 = ${colors.grey2}
+bar-volume-foreground-5 = ${colors.grey1}
+bar-volume-foreground-6 = ${colors.grey}
+bar-volume-gradient = false
+bar-volume-indicator = |
+bar-volume-indicator-font = 0
+bar-volume-fill = 
+bar-volume-fill-font = 1
+bar-volume-empty = 
+bar-volume-empty-font = 1
+bar-volume-empty-foreground = ${colors.foreground}
+
+[module/backlight]
+type = internal/xbacklight
+enable-scroll = false
+format-underline = ${colors.grey}
+format = <ramp> <label>
+ramp-0 = 🌕
+ramp-1 = 🌔
+ramp-2 = 🌓
+ramp-3 = 🌒
+ramp-4 = 🌑
+
+[module/powermenu]
+type = custom/menu
+
+format-underline = ${colors.grey}
+expand-right = true
+
+format-spacing = 1
+
+label-open = 
+label-open-foreground = ${colors.secondary}
+label-close = 
+label-close-foreground = ${colors.secondary}
+label-separator = |
+label-separator-foreground = ${colors.foreground}
+
+menu-0-0 = reboot
+menu-0-0-exec = menu-open-1
+menu-0-1 = power off
+menu-0-1-exec = menu-open-2
+
+menu-1-0 = cancel
+menu-1-0-exec = menu-open-0
+menu-1-1 = reboot
+menu-1-1-exec = sudo reboot
+
+menu-2-0 = power off
+menu-2-0-exec = sudo poweroff
+menu-2-1 = cancel
+menu-2-1-exec = menu-open-0
+
+;compositing-background = xor
+;compositing-background = screen
+;compositing-foreground = source
+;compositing-border = over
+
+[module/touchbrightdown]
+;; Brightness down
+type=custom/text
+content="  "
+content-foreground=#fff
+click-left=xbacklight -dec 10
+
+[module/touchbrightup]
+;; Brightness up
+type=custom/text
+content="    "
+content-foreground=#fff
+click-left=xbacklight -inc 10
+
+[module/touchkeyboard]
+;; Open onscreen keyboard (onboard)
+type=custom/text
+content="   "
+content-foreground=#fff
+click-left=onboard
+
+[module/touchvolmute]
+;; Mute
+type=custom/text
+content="  "
+content-foreground=#fff
+click-left=pactl set-sink-mute 0 toggle
+
+[module/touchvoldown]
+;; Volume down
+type=custom/text
+content="  "
+content-foreground=#fff
+click-left=pactl set-sink-volume 0 -5% 
+
+[module/touchvolup]
+;; Volume down
+type=custom/text
+content="    "
+content-foreground=#fff
+click-left=pactl set-sink-volume 0 +5% 
+
+[module/touchmenu]
+type = custom/menu
+
+expand-right = true
+
+format-spacing = 1
+
+;; Open the menu
+label-open = "    "
+label-open-foreground = #FFF
+
+;; Close the menu
+label-close = 
+label-close-foreground = ${colors.secondary}
+label-separator = "    "
+label-separator-foreground = ${colors.foreground-alt}
+
+;; Launcher
+menu-0-0 = 
+menu-0-0-exec = menu-open-1
+
+;; Move
+menu-0-1 = 
+menu-0-1-exec = menu-open-2
+
+;; Layout
+menu-0-2 = 
+menu-0-2-exec = menu-open-3
+
+;; Split
+menu-0-3 = 
+menu-0-3-exec = menu-open-4
+
+;; Resize
+menu-0-4 = 
+menu-0-4-exec = menu-open-5
+
+;; Move to workspace
+menu-0-5 = 
+menu-0-5-exec = menu-open-6
+
+;; Kill
+menu-0-6 = 
+menu-0-6-exec = menu-open-7
+
+;; Power
+menu-0-7 ="    " 
+menu-0-7-exec = menu-open-8
+
+;; Launcher: Back to main menu
+menu-1-0 = 
+menu-1-0-exec = menu-open-0
+
+;; Launcher: chromium
+menu-1-1=
+menu-1-1-exec= chromium &
+
+:: Launcher: urxvt
+menu-1-2="    "
+menu-1-2-exec = urxvt &
+
+;; Move: Back to main menu
+menu-2-0 = 
+menu-2-0-exec = menu-open-0
+
+;; Move: Left
+menu-2-1 = 
+menu-2-1-exec = i3-msg 'move left'
+
+;; Move: Right
+menu-2-2 = 
+menu-2-2-exec = i3-msg 'move right'
+
+;; Move: Up
+menu-2-3 = 
+menu-2-3-exec = i3-msg 'move up'
+
+;; Move: Down
+menu-2-4 = "    "
+menu-2-4-exec = i3-msg 'move down'
+
+;; Layout: Back to main menu
+menu-3-0 = 
+menu-3-0-exec = menu-open-0
+
+;; Layout: Split
+menu-3-1 = 
+menu-3-1-exec = i3-msg 'layout toggle split'
+
+;; Layout: Stacking
+menu-3-2 = 
+menu-3-2-exec = i3-msg 'layout stacking'
+
+;; Layout: Tabbed
+menu-3-3 =     
+menu-3-3-exec = i3-msg 'layout tabbed'
+
+;; Layout: Toggle floating
+menu-3-4 = "    "
+menu-3-4-exec = i3-msg 'floating toggle'
+
+;; Split: Back to main menu
+menu-4-0 = 
+menu-4-0-exec = menu-open-0
+
+;; Split: Vertical
+menu-4-1 = 
+menu-4-1-exec = i3-msg 'split v'
+
+;; Split: Horizontal
+menu-4-2 = "    "
+menu-4-2-exec = i3-msg 'split h'
+
+;; Resize: Back to main menu
+menu-5-0 = 
+menu-5-0-exec = menu-open-0
+
+;; Resize: Grow height
+menu-5-1 = 
+menu-5-1-exec = i3-msg 'resize grow height 5 px or 5 ppt'
+
+;; Resize: Shrink height
+menu-5-2 =
+menu-5-2-exec = i3-msg 'resize shrink height 5 px or 5 ppt'
+
+;; Resize: Grow width
+menu-5-3 = 
+menu-5-3-exec = i3-msg 'resize grow width 5 px or 5 ppt'
+
+;; Resize: Shrink width
+menu-5-4 = "    "
+menu-5-4-exec = i3-msg 'resize shrink width 5 px or 5 ppt'
+
+;; Move to workspace: Back to main menu
+menu-6-0 = 
+menu-6-0-exec = menu-open-0
+
+;; Move to workspace: 1
+menu-6-1 = 1
+menu-6-1-exec = i3-msg 'move container to workspace 1'
+
+;; Move to workspace: 2
+menu-6-2 = 2
+menu-6-2-exec = i3-msg 'move container to workspace 2'
+
+;; Move to workspace: 3
+menu-6-3 = 3
+menu-6-3-exec = i3-msg 'move container to workspace 3'
+
+;; Move to workspace: 4
+menu-6-4 = 4
+menu-6-4-exec = i3-msg 'move container to workspace 4'
+
+;; Move to workspace: 5
+menu-6-5 = 5
+menu-6-5-exec = i3-msg 'move container to workspace 5'
+
+;; Move to workspace: 6
+menu-6-6 = 6
+menu-6-6-exec = i3-msg 'move container to workspace 6'
+
+;; Move to workspace: 7
+menu-6-7 = 7
+menu-6-7-exec = i3-msg 'move container to workspace 7'
+
+;; Move to workspace: 8
+menu-6-8 = 8
+menu-6-8-exec = i3-msg 'move container to workspace 8'
+
+;; Move to workspace: 9
+menu-6-9 = 9
+menu-6-9-exec = i3-msg 'move container to workspace 9'
+
+;; Move to workspace: 10
+menu-6-10 = "10    "
+menu-6-10-exec = i3-msg 'move container to workspace 10'
+
+;; Kill: Back to main menu
+menu-7-0 = 
+menu-7-0-exec = menu-open-0
+
+;; Kill: Kill
+menu-7-1 = "You sure?        "
+menu-7-1-exec = i3-msg 'kill'
+
+;; Power: Back to main menu
+menu-8-0 = 
+menu-8-0-exec = menu-open-0
+
+;; Power: Screen off
+menu-8-1 = 
+menu-8-1-exec = xset dpms force off 
+
+;; Power: Lock
+menu-8-2 = 
+menu-8-2-exec = i3lock
+
+;; Power: Reboot
+menu-8-3 = 
+menu-8-3-exec = shutdown -r now
+
+;; Power: Shutdown
+menu-8-4 = "    "
+menu-8-4-exec = shutdown -h now
+
+; vim:ft=dosinli

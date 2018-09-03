@@ -28,18 +28,36 @@ if [ -z "$(pgrep nm-applet)" ] ; then
 fi
 
 # Applet for managing print jobs from the tray.
-if [ -z "$(pgrep system-config-printer-applet)" ] ; then
-    system-config-printer-applet &
-fi
+#if [ -z "$(pgrep system-config-printer-applet)" ] ; then
+#    system-config-printer-applet &
+%fi
 
 #
 # APPLICATION LAUNCHER
 #
 
 # Use synapse as our app launcher. (-s: don't display until requested) 
-if [ -z "$(pgrep synapse)" ] ; then
-    synapse -s &
+#if [ -z "$(pgrep synapse)" ] ; then
+    # synapse -s &
+#fi
+
+# Set Desktop Background
+#feh --bg-scale ~/.config/wallpaper/cosmo_hoshimaru_wall_150.png 
+#feh --bg-scale ~/.config/wallpaper/cosmo_hoshimaru_wall.png 
+~/.fehbg
+
+if [ -z "$(pgrep screenrotator)" ] ; then
+  screenrotator &
 fi
+
+if [ -z "$(pgrep blueman-applet)" ] ; then
+  blueman-applet &
+fi
+
+if [ -z "$(pgrep parcellite)" ] ; then
+  parcellite &
+fi
+
 
 # On login, we unlock the ssh keychain so we're not prompted for 
 # passphrases later. We pipe /dev/null to ssh-add to make it realize 
@@ -71,3 +89,9 @@ cat /dev/null | ssh-add &
 #xinput set-prop $TOUCHPAD_ID "Device Enabled" 0
 
 fcitx-autostart
+
+onboard &
+
+polybar laptop &
+
+rofi &
