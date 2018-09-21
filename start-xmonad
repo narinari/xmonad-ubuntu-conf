@@ -12,7 +12,7 @@
 
 # export SDL_VIDEO_X11_DGAMOUSE=0
 
-# compton --background=glx --glx-swap-method=buffer-age
+compton --paint-on-overlay --backend=glx --glx-swap-method=buffer-age &
 
 # Identify the home of our gtkrc file, important for setting styles of 
 # gtk-based applications
@@ -25,7 +25,7 @@ xrdb -merge .Xresources
 # if you prefer not to use any transparency, but it is likely to cause
 # ugly black fringing with some programs such as synapse that expect
 # transparency support.
-xcompmgr -n &
+#xcompmgr -n &
 
 
 #
@@ -77,16 +77,16 @@ xcompmgr -n &
 # - window-strut "none" means windows are allowed to cover the tray. In
 #   other words, trust xmonad to handle this part.
 #
-stalonetray \
-  --icon-gravity E \
-  --geometry 5x1+3710+0 \
-  --max-geometry 5x1-0+0 \
-  --background '#000000' \
-  --skip-taskbar \
-  --icon-size 24 \
-  --kludges force_icons_size \
-  --window-strut none \
-&
+#stalonetray \
+#  --icon-gravity E \
+#  --geometry 5x1+3710+0 \
+#  --max-geometry 5x1-0+0 \
+#  --background '#000000' \
+#  --skip-taskbar \
+#  --icon-size 24 \
+#  --kludges force_icons_size \
+#  --window-strut none \
+#&
 
 # Run the gnome-keyring-daemon to avoid issues you otherwise may encounter
 # when using gnome applications which expect access to the keyring, such
