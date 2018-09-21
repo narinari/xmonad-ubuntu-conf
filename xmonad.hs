@@ -250,15 +250,17 @@ myLayouts =
   Launch the command, then type the key in question and watch
   the output.
 -}
-myKeyBindings =
+myKeyBindings = let
+    rofi = "rofi -modi combi,system:rofi-system.sh,calc:qalc,run,ssh -combi-modi window,drun -show combi -sidebar-mode"
+  in
   [
     ((myModMask .|. shiftMask, xK_space), sendMessage NextLayout)
     , ((myModMask, xK_b), sendMessage ToggleStruts)
     , ((myModMask, xK_a), sendMessage MirrorShrink)
     , ((myModMask, xK_z), sendMessage MirrorExpand)
     , ((myModMask .|. shiftMask, xK_l), spawn "/usr/bin/xset dpms force suspend && slock")
-    , ((myModMask, xK_p), spawn "rofi -show run")
-    , ((myModMask .|. mod1Mask, xK_space), spawn "rofi -show run")
+    , ((myModMask, xK_p), spawn rofi)
+    , ((myModMask .|. mod1Mask, xK_space), spawn rofi)
     , ((myModMask, xK_u), focusUrgent)
     , ((0, 0x1008FF12), spawn "amixer -q set Master toggle")
     , ((0, 0x1008FF11), spawn "amixer -q set Master 10%- && paplay /usr/share/sounds/freedesktop/stereo/audio-volume-change.oga")
@@ -333,15 +335,13 @@ myManagementHooks = [
   , className =? "feh" --> doFloat
   , className =? "OnBoard" --> doFloat
   , className =? "MComix" --> doF (W.shift "2:Hub")
-  , (className =? "Komodo IDE") --> doF (W.shift "5:Dev")
+  , (className =? "Code") --> doF (W.shift "5:Dev")
   , (className =? "Komodo IDE" <&&> resource =? "Komodo_find2") --> doFloat
-  , (className =? "Komodo IDE" <&&> resource =? "Komodo_gotofile") --> doFloat
-  , (className =? "Komodo IDE" <&&> resource =? "Toplevel") --> doFloat
   , (className =? "Empathy") --> doF (W.shift "7:Chat")
   , (className =? "Pidgin") --> doF (W.shift "7:Chat")
   , (className =? "Gimp-2.8") --> doF (W.shift "9:Pix")
   , (className =? hangoutWinClassName) --> doF (W.shift "7:Chat")
-  , (className =? "Google-chrome-beta") --> doF (W.shift "6:Web")
+  , (className =? "google-chrome-beta") --> doF (W.shift "6:Web")
   , (className =? "Firefox") --> doF (W.shift "6:Web")
   , (className =? "zeal") --> doFloat
   ]

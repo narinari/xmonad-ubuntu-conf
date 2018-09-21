@@ -14,7 +14,7 @@
     yellow: 	rgba ( 241, 250, 140, 100 % );
 }
 * {
-    selected-normal-background:     @cyan;
+    selected-normal-background:     @green;
     normal-background:              @background;
     normal-foreground:              @foreground;
     alternate-normal-background:    @normal-background;
@@ -29,7 +29,7 @@
     alternate-active-background:    @normal-background;
     alternate-active-foreground:    @selected-active-foreground;
     alternate-active-background:    @selected-active-background;
-    border-color:                   @selected-normal-background;
+    border-color:                   @purple;
     separatorcolor:                 @border-color;
     spacing: 2;
     background-color: @normal-background;
@@ -89,8 +89,11 @@
 #scrollbar {
     border:       0;
 }
+#button {
+    text-color: @normal-foreground;
+}
 #button.selected {
-    background-color: @selected-normal-background;
+    background-color: @pink;
     text-color:       @selected-normal-foreground;
 }
 #inputbar {
@@ -98,6 +101,14 @@
     text-color: @normal-foreground;
     background-color: inherit;
     padding:    1px ;
+    children:   [ prompt,textbox-prompt-colon,entry,case-indicator ];
+}
+#textbox-prompt-colon {
+    expand:     false;
+    str:        ":";
+    margin:     0px 0.3em 0em 0em ;
+    background-color: @pink;
+    text-color: @selected-normal-foreground;
 }
 #case-indicator {
     spacing:    0;
@@ -109,5 +120,6 @@
 }
 #prompt {
     spacing:    0;
-    text-color: @normal-foreground;
+    background-color: @pink;
+    text-color: @selected-normal-foreground;
 }
