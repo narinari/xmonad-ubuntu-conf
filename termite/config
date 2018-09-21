@@ -1,9 +1,9 @@
 [options]
-#allow_bold = true
+allow_bold = true
 #audible_bell = false
-#clickable_url = true
-#dynamic_title = true
-font = 'FuraCode Nerd Font' 9
+clickable_url = true
+dynamic_title = true
+font = SpaceMono Nerd Font 11
 #font = 'Wuncon Siji' 9
 #fullscreen = true
 #geometry = 640x480
@@ -99,7 +99,7 @@ color7  = #bfbfbf
 color15 = #e6e6e6
 
 [hints]
-#font = Monospace 12
+font = SpaceMono Nerd Font 12
 #foreground = #dcdccc
 #background = #3f3f3f
 #active_foreground = #e68080
