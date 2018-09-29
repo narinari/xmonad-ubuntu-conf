@@ -335,6 +335,7 @@ myManagementHooks = [
   , className =? "feh" --> doFloat
   , className =? "OnBoard" --> doFloat
   , className =? "MComix" --> doF (W.shift "2:Hub")
+  , className =? "virt-manager" --> doF (W.shift "0:VM")
   , (className =? "Code") --> doF (W.shift "5:Dev")
   , (className =? "Komodo IDE" <&&> resource =? "Komodo_find2") --> doFloat
   , (className =? "Empathy") --> doF (W.shift "7:Chat")
@@ -471,13 +472,7 @@ main = do
   xmonad
     $ withUrgencyHook NoUrgencyHook
     $ docks
-    $ myConfig
-      { logHook = dynamicLogWithPP(logToDBus dbus)
-               <+> takeTopFocus
-               <+> updatePointer (0.5, 0.5) (0.2, 0.2)
-      }
-  where
-  myConfig = defaultConfig
+    $ defaultConfig
     { focusedBorderColor = myFocusedBorderColor
     , normalBorderColor = myNormalBorderColor
     , terminal = myTerminal
@@ -493,8 +488,9 @@ main = do
     , manageHook = manageHook def
         <+> composeAll myManagementHooks
         <+> manageDocks
---    , logHook = takeTopFocus
---        <+> updatePointer (0.5, 0.5) (0.2, 0.2)
+    , logHook = dynamicLogWithPP(logToDBus dbus)
+        <+> takeTopFocus
+        <+> updatePointer (0.5, 0.5) (0.2, 0.2)
     } `additionalKeys` myKeys `removeKeys` [(myModMask, xK_space)]
 
 -- Override the PP values as you would otherwise, adding colors etc depending
@@ -502,13 +498,13 @@ main = do
 logToDBus :: D.Client -> PP
 logToDBus dbus = def
     { ppOutput = dbusOutput dbus
-    , ppCurrent = wrap ("%{F" ++ blue2 ++ "} ") " %{F-}"
+    , ppCurrent = wrap ("%{F" ++ purple ++ "} ") " %{F-}"
     , ppVisible = wrap ("%{F" ++ blue ++ "} ") " %{F-}"
     , ppUrgent = wrap ("%{F" ++ red ++ "} ") " %{F-}"
     , ppHidden = wrap " " " "
     , ppWsSep = ""
     , ppSep = " | "
-    , ppTitle = fixWitdh 25
+    , ppTitle = fixWitdh 40
 }
 
 -- Emit a DBus signal on log updates
