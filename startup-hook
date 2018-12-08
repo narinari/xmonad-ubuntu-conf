@@ -8,6 +8,8 @@
 # Author: David Brewer
 # Repository: https://github.com/davidbrewer/xmonad-ubuntu-conf
 
+polybar desktop &
+
 #
 # TRAY ICON SOFTWARE
 #
@@ -46,11 +48,11 @@ fi
 #feh --bg-scale ~/.config/wallpaper/cosmo_hoshimaru_wall.png 
 ~/.fehbg
 
-if [ -z "$(pgrep screenrotator)" ] ; then
+if [[ $(type -P screenrotator) && -z "$(pgrep screenrotator)" ]] ; then
   screenrotator &
 fi
 
-if [ -z "$(pgrep blueman-applet)" ] ; then
+if [[ $(type -P blueman-applet) && -z "$(pgrep blueman-applet)" ] ; then
   blueman-applet &
 fi
 
@@ -90,8 +92,8 @@ cat /dev/null | ssh-add &
 
 fcitx-autostart
 
-onboard &
-
-polybar laptop &
+if [[ $(type -P onboard) && -z "$(pgrep onboard)" ] ; then
+  onboard &
+fi
 
 rofi &
