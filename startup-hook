@@ -32,7 +32,7 @@ fi
 # Applet for managing print jobs from the tray.
 #if [ -z "$(pgrep system-config-printer-applet)" ] ; then
 #    system-config-printer-applet &
-%fi
+#fi
 
 #
 # APPLICATION LAUNCHER
@@ -52,7 +52,7 @@ if [[ $(type -P screenrotator) && -z "$(pgrep screenrotator)" ]] ; then
   screenrotator &
 fi
 
-if [[ $(type -P blueman-applet) && -z "$(pgrep blueman-applet)" ] ; then
+if [[ $(type -P blueman-applet) && -z "$(pgrep blueman-applet)" ]] ; then
   blueman-applet &
 fi
 
