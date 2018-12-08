@@ -251,7 +251,7 @@ myLayouts =
   the output.
 -}
 myKeyBindings = let
-    rofi = "rofi -modi combi,system:rofi-system.sh,calc:qalc,run,ssh -combi-modi window,drun -show combi -sidebar-mode"
+    rofi = "rofi -modi combi,run,system:rofi-system.sh,calc:qalc,ssh -combi-modi window,drun -show combi -sidebar-mode"
   in
   [
     ((myModMask .|. shiftMask, xK_space), sendMessage NextLayout)
